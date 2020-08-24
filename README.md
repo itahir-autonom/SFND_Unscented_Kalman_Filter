@@ -74,3 +74,62 @@ and performing clustering. This is similar to what was done in Sensor Fusion Lid
 This information is only accessible by people who are already enrolled in Sensor Fusion. 
 If you are enrolled, see the project page in the classroom
 for instructions and the project rubric.
+
+
+## Explaination and Conclusion
+
+1. Initialization
+In the first step, we define the values like the noise of the sensors as well the dimensions of the state and covariances.
+So the code first initilized the state vector and the covariance matrix of the initial state. State vector is first initialized by the sensor measurement. This is done in the UKF::ProcessMeasurement function. The model is CTRV(constant turn rate and velocity magnitude model). Whose state vector as well as the process model is as follows
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/b.png)
+
+2. Prediction 
+Afterwards the initial state is augmented to include the noise. This result in the state vector and covariance to increase in size
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/1.jpeg.png)
+
+afterwards sigma points are being calculated based on this augmented state
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/1a.png)
+
+And subsequently with these sigma points, predicted sigma points (predicted state) is calculated with the help of process model. The process model is as under
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/2.png)
+
+Futhermore, predicted state mean and covariance matrix based on the predicted sigma points are calculated to be used in the update step
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/c.png)
+
+3. Update step
+In this step the predicted mean and covariance are updated with the help of measurements obtained from sensor. Firstly measurement state is again predicted and then updated with sensor data. In our case, Lidar as well as Radar data. In the lidar case, the sensor directly gives the position in the x and y direction, which is used directly. But in the Radar case, the sensor data gives the distance,angle as well as radial velocity to the target. And in order to predict the state, the radar data needed to be transformed as state variable.
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/radar.png)
+
+After prediction step, the state is updated with the help of the measurement model. which gives the updated mean and covariance
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/d.png)
+
+And this updated mean and covariance become the initilized values in the next step.
+
+4. Performance
+
+To check the consistency of the process, Normalized Innovation Square (NIS) technique is used, which generates a data set based on the ukf estimates, measurements and groundtruth. 
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/nis.png)
+
+This data set is distributed according to chi square distribution and tells the consistency os the model. 
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/df.png)
+
+In the code, NIS of both radar and lidar are calculated and plot to check the result. In the build folder, there is a Octave file(.m) to plot the NIS for both the Radar and Lidar values.
+
+on the first attempt, the initial noise was taken as a identity matrix,which resulted in overestimating the uncertainity in the system since all of the values were below the 95% mark on the chi square values. After iterating through and decreasing the initial covariance (system noise), the NIS shows a consistency in both the radar as well as with the lidar measurements. Both the NIS are plotted with 95% value as a reference
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/NIS_lidar.png)
+
+![alt text](https://github.com/itahir-autonom/SFND_Unscented_Kalman_Filter/blob/master/images/NIS_radar.png)
+
+
+
+
